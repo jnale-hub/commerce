@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2 class="text-center mb-3">Watchlists</h2>
+<div class="row">
+    {% for listing in listings %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="img-box d-flex justify-content-center mb-3"><img src="{{ listing.imageUrl }}" class="img-fluid img-list"
+                alt="{{ listing.title }}"></div>
+        <h6><a href="{% url 'listing' id=listing.id %}">{{ listing.title }}</a></h6>
+        <h5><b>PHP{{ listing.price.bid|floatformat:2 }}</b></h5>
+    </div>
+    {% empty %}
+    <p class="text-center">No available listing.</p>
+    {% endfor %}
+</div>
+{% endblock %}

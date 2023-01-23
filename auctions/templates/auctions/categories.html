@@ -1,0 +1,45 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<form action="{% url 'display_category' %}" method="post" class="nav justify-content-center">
+    {% csrf_token %}
+    {% for category in categories %}
+    <button class="mx-3 mb-1" type="submit" name="category" value="{{ category }}">{{ category }}</button>
+    {% endfor %}
+</form>
+<hr>
+{% if category %}
+<h2 class="text-center mb-3">{{ category }}</h2>
+<div class="row">
+    {% for listing in listings %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="img-box d-flex justify-content-center mb-3"><img src="{{ listing.imageUrl }}" class="img-fluid img-list"
+                alt="{{ listing.title }}"></div>
+        <h6><a href="{% url 'listing' id=listing.id %}">{{ listing.title }}</a></h6>
+        <h5><b>PHP{{ listing.price.bid }}.00</b></h5>
+    </div>
+
+    {% empty %}
+    <p class="m-3">No available listing for this category.</p>
+    {% endfor %}
+</div>
+{% else %}
+{% for category in categories %}
+<h2 class="text-center mb-3">{{ category }}</h2>
+<div class="row">
+    {% for listing in listings %}
+    {% if listing.category == category %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="img-box d-flex justify-content-center mb-3"><img src="{{ listing.imageUrl }}" class="img-fluid img-list"
+                alt="{{ listing.title }}"></div>
+        <h6><a href="{% url 'listing' id=listing.id %}">{{ listing.title }}</a></h6>
+        <h5><b>PHP{{ listing.price.bid }}.00</b></h5>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+<hr>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
