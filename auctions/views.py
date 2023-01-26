@@ -6,6 +6,7 @@ from django.urls import reverse
 from markdown2 import Markdown
 from datetime import datetime
 
+
 from .models import User, Category, Listing, Comment, Bid
 
 # For rendering paragraphs
@@ -13,13 +14,17 @@ markdowner = Markdown()
 
 def listing (request, id):
     listing = Listing.objects.get(pk=id)
+    if request.user.is_authenticated:
+        count = len(request.user.listingWatchlist.all())
+    else:
+        count = None
     
     return render(request, "auctions\listing.html", {
         "listing": listing,
         "isListingInWatchlist": request.user in listing.watchlist.all(),
         "allComments": Comment.objects.filter(listing=listing),
         "isOwner": request.user.username == listing.owner.username,
-        "watchlistCount": len(request.user.listingWatchlist.all())
+        "watchlistCount": count
     })
 
 def close_auction(request, id):
@@ -30,9 +35,9 @@ def close_auction(request, id):
     return render(request, "auctions\listing.html", {
         "listing": listing,
         "isListingInWatchlist": request.user in listing.watchlist.all(),
-        "description": markdowner.convert(listingData.description),
-        "allComments": Comment.objects.filter(listing=listingData),
-        "isOwner": request.user.username == listingData.owner.username,
+        "description": markdowner.convert(listing.description),
+        "allComments": Comment.objects.filter(listing=listing),
+        "isOwner": request.user.username == listing.owner.username,
         "watchlistCount": len(request.user.listingWatchlist.all())
     })
 
@@ -72,6 +77,7 @@ def add_comment(request, id):
         author=request.user,
         listing=Listing.objects.get(pk=id),
         message=request.POST['comment'],
+        date=datetime.now()
     )
     newComment.save()
     return HttpResponseRedirect(reverse("listing", args=(id, )))
@@ -93,10 +99,15 @@ def display_watchlist(request):
     })
 
 def index(request):
+    if request.user.is_authenticated:
+        count = len(request.user.listingWatchlist.all())
+    else:
+        count = None
+
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.filter(isActive=True),
         "categories": Category.objects.all(),
-        "watchlistCount": len(request.user.listingWatchlist.all())
+        "watchlistCount": count,
     })
 
 def categories(request):
@@ -138,7 +149,8 @@ def create_listing(request):
             initialPrice=price,
             price=bid,
             category=Category.objects.get(categoryName=category),
-            owner=currentUser
+            owner=currentUser,
+            date=datetime.now()
         )
         f.save()
         return HttpResponseRedirect(reverse(index))

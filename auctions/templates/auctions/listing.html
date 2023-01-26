@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load humanize %}
 
 {% block body %}
 
@@ -30,29 +31,35 @@
     {% endif %}
 
 <div class="row">
-    <div class="main-img col-lg-6 d-flex justify-content-center mb-3">
-        <img class="img-fluid" src="{{ listing.imageUrl }}" alt="{{ listing.title }}">
+    <div class="main-img col-lg-6 d-flex justify-content-center mb-3"> 
+        <div>
+            <img class="img-fluid" src="{{ listing.imageUrl }}" alt="{{ listing.title }}">
+        </div>
     </div>
   
     <div class="col-lg-6">
-        <h4>{{ listing.title }}</h4>
+        <h4>{{ listing.title }}
+            {% if not listing.isActive %}
+            <span class="badge badge-danger">Listing closed</span>
+            {% elif isListingInWatchlist %}
+            <span class="badge badge-primary">Watchlist</span>
+            {% endif %}</h4>
         <hr>
 
-        <div class="m-2 row">
-            <p class="mx-3">Initial Price:</p>
-            <div>
-                <h4 class=""><b>PHP {{ listing.initialPrice|floatformat:2 }}</b></h4>
-            </div>
-            <div>
-                <p class="ml-5">Owner: {{ listing.owner}}</p>
-            </div>
+        <div class="">
+            <ul>
+                <li>Listed by: {{ listing.owner}}</li>
+                <li>Created on {{ listing.date }}</li>
+                <li>Initial Price: <b>PHP {{ listing.initialPrice|floatformat:2|intcomma }}</b></li>
+            </ul>
         </div>
         <hr>
+        
         
         <div class="m-2 row">
             <p class="mx-3">Current Bid:</p>
             <div>
-                <h3 class=""><b>PHP {{ listing.price.bid|floatformat:2 }}</b></h3>
+                <h3 class=""><b>PHP {{ listing.price.bid|floatformat:2|intcomma }}</b></h3>
                 <p id="bid">Bid(s): <strong>{{ listing.bidCount }}</strong></p>
             </div>
             
@@ -100,7 +107,7 @@
 </div>
 
 <div class="m-3">
-    <h4>Description and Specifications:</h4>
+    <h4><b>About this item</b></h4>
     {{ listing.description | safe }}
     <hr>
 
@@ -108,8 +115,9 @@
     <ul class="container">
         {% for comment in allComments %}
         <li class="">
-            <h6><b>{{ comment.author }}</b></h6>
-            {{ comment.message }} 
+            <b><i>{{ comment.author }}</b> | {{ comment.date }}</i>
+            <p>{{ comment.message }}</p>
+            <hr>
         </li>
         {% endfor %}
     </ul>

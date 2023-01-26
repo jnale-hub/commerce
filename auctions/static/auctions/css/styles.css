@@ -10,6 +10,10 @@ body {
   align-items: center;
 }
 
+ul {
+  list-style: none;
+}
+
 .img-list {
   max-height: 248px;
   max-width: -webkit-fill-available;
